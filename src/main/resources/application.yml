@@ -1,0 +1,12 @@
+spring:
+  r2dbc:
+    url: r2dbc:mariadb://localhost:3308/db_balance_card?allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: root
+  sql:
+    init:
+      mode: never
+
+
+server:
+  port: 8080
