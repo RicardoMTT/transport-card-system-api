@@ -3,9 +3,15 @@ spring:
     url: ${SPRING_R2DBC_URL}
     username: ${SPRING_R2DBC_USERNAME}
     password: ${SPRING_R2DBC_PASSWORD}
+    pool:
+      enabled: true
+      initial-size: 1
+      max-size: 5   # <= igual al límite que te da Clever Cloud
+      max-idle-time: 30s
     #url: r2dbc:mariadb://localhost:3308/db_balance_card?allowPublicKeyRetrieval=true&useSSL=false
     #username: root
     #password: root
+
   datasource:
     hikari:
       maximum-pool-size: 3
