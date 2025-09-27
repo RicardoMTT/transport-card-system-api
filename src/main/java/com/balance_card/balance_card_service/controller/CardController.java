@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/cards")
 public class CardController {
