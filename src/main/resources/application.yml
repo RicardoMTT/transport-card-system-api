@@ -1,12 +1,17 @@
 spring:
   r2dbc:
-    url: r2dbc:mariadb://localhost:3308/db_balance_card?allowPublicKeyRetrieval=true&useSSL=false
-    username: root
-    password: root
+    url: ${SPRING_R2DBC_URL}
+    username: ${SPRING_R2DBC_USERNAME}
+    password: ${SPRING_R2DBC_PASSWORD}
+    #url: r2dbc:mariadb://localhost:3308/db_balance_card?allowPublicKeyRetrieval=true&useSSL=false
+    #username: root
+    #password: root
+  datasource:
+    hikari:
+      maximum-pool-size: 3
   sql:
     init:
       mode: never
 
-
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
