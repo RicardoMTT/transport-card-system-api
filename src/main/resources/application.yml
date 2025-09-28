@@ -7,14 +7,18 @@ spring:
       enabled: true
       initial-size: 1
       max-size: 5   # <= igual al límite que te da Clever Cloud
-      max-idle-time: 30s
-      max-acquire-time: 60s
+      max-idle-time: 60s
+      max-acquire-time: 30s
       max-create-connection-time: 30s
       validation-query: SELECT 1
     #url: r2dbc:mariadb://localhost:3308/db_balance_card?allowPublicKeyRetrieval=true&useSSL=false
     #username: root
     #password: root
+  jmx:
+    enabled: true
 
+  jpa:
+    open-in-view: false
   datasource:
     hikari:
       #maximum-pool-size: 3
