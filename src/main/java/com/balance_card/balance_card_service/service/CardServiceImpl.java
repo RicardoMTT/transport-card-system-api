@@ -47,9 +47,15 @@ public class CardServiceImpl implements CardService{
         return cachedCards;
     }
 
+    // Valida si la cache ha expirado , comparando el tiempo actual con el tiempo de la ultima cache
     private boolean isExpired() {
         return lastCacheTime == null ||
                 Duration.between(lastCacheTime, Instant.now()).compareTo(CACHE_DURATION) > 0;
+    }
+    
+    private void invalidateCache() {
+        this.cachedCards = null;
+        this.lastCacheTime = null;
     }
     @Override
     public Mono<Card> findById(Long id) {
@@ -65,6 +71,11 @@ public class CardServiceImpl implements CardService{
     }
 
 
+    /*
+    * Cada vez que se realice una recarga o un uso de la tarjeta,
+    * la caché se invalidará automáticamente. La próxima llamada a
+    * findAll() obtendrá los datos más recientes de la base de datos.
+    * */
 
     // Usado cada vez que se hace una recarga en el card
     // Suma al balance del card el monto de la recarga
@@ -81,7 +92,8 @@ public class CardServiceImpl implements CardService{
                     r.setAmount(amount);
                     r.setCreatedAt(LocalDateTime.now());
                     return rechargeRepository.save(r)
-                            .then(cardRepository.save(card));
+                            .then(cardRepository.save(card))
+                            .doOnSuccess(c -> invalidateCache()); // Invalida la caché después de guardar
                 });
     }
 
@@ -118,7 +130,8 @@ public class CardServiceImpl implements CardService{
                     u.setTotalFare(total);
                     u.setCreatedAt(LocalDateTime.now());
                     return usageRepository.save(u)
-                            .then(cardRepository.save(card));
+                            .then(cardRepository.save(card))
+                            .doOnSuccess(c -> invalidateCache()); // Invalida la caché después de guardar
                 });
     }
 }
