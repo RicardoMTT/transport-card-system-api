@@ -75,6 +75,38 @@ Frontend desarrollado en **Angular** y backend en **Spring Boot (WebFlux + R2DBC
 
 ---
 
+### Tablas
+```
+CREATE TABLE cards (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(20) NOT NULL,
+  balance DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  fare DECIMAL(10,2) NOT NULL,
+  status VARCHAR(20),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+select * from cards;
+
+CREATE TABLE recharges (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  card_id BIGINT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
+);
+
+CREATE TABLE usages (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  card_id BIGINT NOT NULL,
+  passengers INT NOT NULL,
+  total_fare DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
+);
+
+```
 ## 🚀 Cómo ejecutar el proyecto
 
 ### 1. Clonar repositorio
