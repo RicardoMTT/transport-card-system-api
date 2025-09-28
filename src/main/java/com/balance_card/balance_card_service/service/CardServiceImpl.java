@@ -99,7 +99,18 @@ public class CardServiceImpl implements CardService{
                     if (card.getBalance().compareTo(total) < 0) {
                         return Mono.error(new RuntimeException("Saldo insuficiente"));
                     }
-                    card.setBalance(card.getBalance().subtract(total));
+                    BigDecimal newBalance = card.getBalance().subtract(total);
+                    card.setBalance(newBalance);
+                    
+                    // Set status based on balance
+                    if (newBalance.compareTo(new BigDecimal(5)) <= 0) {
+                        card.setStatus("LOW");
+                    } else if (newBalance.compareTo(new BigDecimal(15)) <= 0) {
+                        card.setStatus("MEDIUM");
+                    } else {
+                        card.setStatus("GOOD");
+                    }
+                    
                     card.setUpdatedAt(LocalDateTime.now());
                     Usage u = new Usage();
                     u.setCardId(card.getId());
