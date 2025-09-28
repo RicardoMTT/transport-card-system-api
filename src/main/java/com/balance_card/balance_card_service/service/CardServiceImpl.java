@@ -6,21 +6,28 @@ import com.balance_card.balance_card_service.entity.Usage;
 import com.balance_card.balance_card_service.repository.CardRepository;
 import com.balance_card.balance_card_service.repository.RechargeRepository;
 import com.balance_card.balance_card_service.repository.UsageRepository;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Service
+@EnableCaching
 public class CardServiceImpl implements CardService{
 
     private final CardRepository cardRepository;
     private final RechargeRepository rechargeRepository;
     private final UsageRepository usageRepository;
 
-
+    private Flux<Card> cachedCards;
+    private Instant lastCacheTime;
+    private final Duration CACHE_DURATION = Duration.ofMinutes(15);
     public CardServiceImpl(CardRepository cardRepository, RechargeRepository rechargeRepository, UsageRepository usageRepository) {
         this.cardRepository = cardRepository;
         this.rechargeRepository = rechargeRepository;
@@ -30,10 +37,20 @@ public class CardServiceImpl implements CardService{
 
     @Override
     public Flux<Card> findAll() {
-        return cardRepository.findAll();
+        // Si no hay cache o expiró, crear nuevo
+        if (cachedCards == null || isExpired()) {
+            cachedCards = cardRepository.findAll()
+                    .doOnNext(card -> System.out.println("Cargando card id: " + card.getId()))
+                    .cache(); // Cache hasta que se complete
+            lastCacheTime = Instant.now();
+        }
+        return cachedCards;
     }
 
-
+    private boolean isExpired() {
+        return lastCacheTime == null ||
+                Duration.between(lastCacheTime, Instant.now()).compareTo(CACHE_DURATION) > 0;
+    }
     @Override
     public Mono<Card> findById(Long id) {
         return cardRepository.findById(id);
