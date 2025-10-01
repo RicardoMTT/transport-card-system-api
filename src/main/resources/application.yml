@@ -1,8 +1,11 @@
 spring:
   r2dbc:
-    url: ${SPRING_R2DBC_URL}
-    username: ${SPRING_R2DBC_USERNAME}
-    password: ${SPRING_R2DBC_PASSWORD}
+    #url: ${SPRING_R2DBC_URL}
+    url: r2dbc:mariadb://localhost:3308/db_balance_card?allowPublicKeyRetrieval=true&useSSL=false
+    #username: ${SPRING_R2DBC_USERNAME}
+    #password: ${SPRING_R2DBC_PASSWORD}
+    username: root
+    password: root
     pool:
       enabled: true
       initial-size: 1
