@@ -1,6 +1,7 @@
 package com.balance_card.balance_card_service.service;
 
 import com.balance_card.balance_card_service.entity.Card;
+import com.balance_card.balance_card_service.entity.CardHistoryDTO;
 import com.balance_card.balance_card_service.entity.Recharge;
 import com.balance_card.balance_card_service.entity.Usage;
 import com.balance_card.balance_card_service.repository.CardRepository;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @Service
 @EnableCaching
@@ -133,5 +135,31 @@ public class CardServiceImpl implements CardService{
                             .then(cardRepository.save(card))
                             .doOnSuccess(c -> invalidateCache()); // Invalida la caché después de guardar
                 });
+    }
+
+    @Override
+    public Flux<Recharge> getRecharges(Long id) {
+        return rechargeRepository.findByCardId(id);
+    }
+
+
+    @Override
+    public Flux<CardHistoryDTO> getCardHistory(Long cardId) {
+        // Obtener el card para acceder al tipo de transporte
+        Mono<Card> cardMono = cardRepository.findById(cardId);
+
+        // Obtener recargas
+        Flux<CardHistoryDTO> recharges = rechargeRepository.findByCardId(cardId)
+                .flatMap(recharge -> cardMono.map(card ->
+                        CardHistoryDTO.fromRecharge(recharge, card.getType())
+                ));
+
+        // Obtener usos
+        Flux<CardHistoryDTO> usages = usageRepository.findByCardId(cardId)
+                .flatMap(usage -> cardMono.map(card ->
+                                CardHistoryDTO.fromUsage(usage, card.getType())));
+        // Combinar y ordenar por fecha descendente
+        return Flux.merge(recharges, usages)
+                .sort(Comparator.comparing(CardHistoryDTO::getDate).reversed());
     }
 }

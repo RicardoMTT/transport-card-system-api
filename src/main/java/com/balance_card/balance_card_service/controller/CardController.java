@@ -1,6 +1,8 @@
 package com.balance_card.balance_card_service.controller;
 
 import com.balance_card.balance_card_service.entity.Card;
+import com.balance_card.balance_card_service.entity.CardHistoryDTO;
+import com.balance_card.balance_card_service.entity.Recharge;
 import com.balance_card.balance_card_service.service.CardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +57,18 @@ public class CardController {
     public Mono<Card> use(@PathVariable Long id, @RequestBody java.util.Map<String, Object> body) {
         int passengers = Integer.parseInt(body.get("passengers").toString());
         return cardService.use(id, passengers);
+    }
+
+    // Obtener el historial de recargas de un card
+    @GetMapping("/{id}/recharges")
+    public Flux<Recharge> getRecharges(@PathVariable Long id) {
+        return cardService.getRecharges(id);
+    }
+
+    // Obtener el historial de recargas de un card
+    @GetMapping("/{id}/history")
+    public Flux<CardHistoryDTO> getHistory(@PathVariable Long id) {
+        return cardService.getCardHistory(id);
     }
 
 }
