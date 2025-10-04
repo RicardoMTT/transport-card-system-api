@@ -1,9 +1,12 @@
 package com.balance_card.balance_card_service.service;
 
+import com.balance_card.balance_card_service.dto.RechargeReportDTO;
+import com.balance_card.balance_card_service.dto.UsageReportDTO;
 import com.balance_card.balance_card_service.entity.Card;
 import com.balance_card.balance_card_service.entity.CardHistoryDTO;
 import com.balance_card.balance_card_service.entity.Recharge;
 import com.balance_card.balance_card_service.entity.Usage;
+import com.balance_card.balance_card_service.exception.MontoInvalidoException;
 import com.balance_card.balance_card_service.repository.CardRepository;
 import com.balance_card.balance_card_service.repository.RechargeRepository;
 import com.balance_card.balance_card_service.repository.UsageRepository;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -85,6 +90,10 @@ public class CardServiceImpl implements CardService{
     // Retorna el card actualizado
     @Override
     public Mono<Card> recharge(Long id, BigDecimal amount) {
+        // Si el monto es menor o igual a cero, lanza una excepción
+        if (amount.compareTo(BigDecimal.ZERO) <= 0){
+            return Mono.error(new MontoInvalidoException("El monto debe ser mayor a cero"));
+        }
         return cardRepository.findById(id)
                 .flatMap(card -> {
                     card.setBalance(card.getBalance().add(amount));
@@ -99,6 +108,9 @@ public class CardServiceImpl implements CardService{
                 });
     }
 
+    public void leerArchivo() throws FileNotFoundException {
+        FileReader file = new FileReader("archivo.txt");
+    }
 
 
     // Usado cada vez que se usa el card para pagar un viaje
@@ -161,5 +173,49 @@ public class CardServiceImpl implements CardService{
         // Combinar y ordenar por fecha descendente
         return Flux.merge(recharges, usages)
                 .sort(Comparator.comparing(CardHistoryDTO::getDate).reversed());
+    }
+
+
+
+    @Override
+    public Mono<RechargeReportDTO> getRechargeReport(Long cardId, LocalDateTime startDate, LocalDateTime endDate) {
+        return rechargeRepository.findByCardIdAndDateRange(cardId, startDate, endDate)
+                .collectList()
+                .map(recharges -> {
+                    BigDecimal totalAmount = recharges.stream()
+                            .map(Recharge::getAmount)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return new RechargeReportDTO(
+                            cardId,
+                            totalAmount,
+                            (long) recharges.size(),
+                            startDate,
+                            endDate
+                    );
+                });
+    }
+
+    @Override
+    public Mono<UsageReportDTO> getUsageReportByMonth(Long cardId, int month, int year) {
+        // Calcular el rango de fechas del mes
+        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1); 
+
+        return usageRepository.findByCardIdAndDateRange(cardId, startDate, endDate)
+                .collectList()
+                .map(usages -> {
+                    BigDecimal totalSpent = usages.stream()
+                            .map(Usage::getTotalFare)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return new UsageReportDTO(
+                            cardId,
+                            month,
+                            year,
+                            (long) usages.size(),
+                            totalSpent
+                    );
+                });
     }
 }
