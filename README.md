@@ -45,6 +45,7 @@ Frontend desarrollado en **Angular** y backend en **Spring Boot (WebFlux + R2DBC
 ### Otros
 - Maven
 - GitHub (control de versiones)
+- Postman 
 
 ---
 
