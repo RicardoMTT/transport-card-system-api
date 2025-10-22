@@ -8,18 +8,18 @@ public class RechargeReportDTO {
     private Long cardId;
     private BigDecimal totalAmount;
     private Long totalRecharges;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private Integer month;
+    private Integer year;
 
     public RechargeReportDTO() {
     }
 
-    public RechargeReportDTO(Long cardId, BigDecimal totalAmount, Long totalRecharges, LocalDateTime startDate, LocalDateTime endDate) {
+    public RechargeReportDTO(Long cardId, BigDecimal totalAmount, Long totalRecharges, Integer month, Integer year) {
         this.cardId = cardId;
         this.totalAmount = totalAmount;
         this.totalRecharges = totalRecharges;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.month = month;
+        this.year = year;
     }
 
     public Long getCardId() {
@@ -46,19 +46,19 @@ public class RechargeReportDTO {
         this.totalRecharges = totalRecharges;
     }
 
-    public LocalDateTime getStartDate() {
-        return startDate;
+    public Integer getMonth() {
+        return month;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
+    public void setMonth(Integer month) {
+        this.month = month;
     }
 
-    public LocalDateTime getEndDate() {
-        return endDate;
+    public Integer getYear() {
+        return year;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
+    public void setYear(Integer year) {
+        this.year = year;
     }
 }

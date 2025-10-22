@@ -1,6 +1,5 @@
-package com.balance_card.balance_card_service;
+package com.balance_card.balance_card_service.controller;
 
-import com.balance_card.balance_card_service.controller.CardController;
 import com.balance_card.balance_card_service.entity.Card;
 import com.balance_card.balance_card_service.service.CardService;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,20 +45,22 @@ public class CardControllerTest {
     @Test
     void all_ShouldReturnAllCards() {
         // Given
-        Card card2 = new Card();
-        card2.setId(2L);
-        card2.setType("CORREDOR");
-        card2.setBalance(new BigDecimal("30.00"));
+        Card card = new Card();
+        card.setId(2L);
+        card.setType("CORREDOR");
+        card.setBalance(new BigDecimal("30.00"));
 
-        // Realizamos la configuracion del mock para que devuelva un Flux con ambas tarjetas
-        when(cardService.findAll()).thenReturn(Flux.just(testCard, card2));
+        // Realizamos la configuracion del mock para que devuelva un Flux con las tarjetas ( en este caso 2 )
+        when(cardService.findAll()).thenReturn(Flux.just(testCard, card));
 
         // When
-        // Realiza la llamada al metodo all del controlador que se está probando
+        // Solo crea la definición del flujo, pero no lo ejecuta aún
+        // Al llamar a verifyComplete(), se dispara la ejecución del Flux y se verifican las expectativas definidas anteriormente.
         Flux<Card> result = cardController.all();
 
         // Then
         StepVerifier.create(result) // Crea un StepVerifier para verificar el resultado
+                // 3. Al llamar a verifyComplete(), se dispara la ejecución del Flux, el flux comienza a emitir elementos y se verifican las expectativas definidas anteriormente.
                 .expectNextCount(2)
                 .verifyComplete();
 

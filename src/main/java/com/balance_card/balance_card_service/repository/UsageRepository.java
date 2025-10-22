@@ -13,4 +13,5 @@ public interface UsageRepository extends ReactiveCrudRepository<Usage, Long> {
     // Buscar usos por tarjeta y rango de fechas
     @Query("SELECT * FROM usages WHERE card_id = :cardId AND created_at BETWEEN :startDate AND :endDate")
     Flux<Usage> findByCardIdAndDateRange(Long cardId, LocalDateTime startDate, LocalDateTime endDate);
+
 }

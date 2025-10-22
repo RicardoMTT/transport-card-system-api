@@ -1,5 +1,7 @@
 package com.balance_card.balance_card_service.controller;
 
+import com.balance_card.balance_card_service.dto.RechargeReportDTO;
+import com.balance_card.balance_card_service.dto.UsageReportDTO;
 import com.balance_card.balance_card_service.entity.Card;
 import com.balance_card.balance_card_service.entity.CardHistoryDTO;
 import com.balance_card.balance_card_service.entity.Recharge;
@@ -69,6 +71,19 @@ public class CardController {
     @GetMapping("/{id}/history")
     public Flux<CardHistoryDTO> getHistory(@PathVariable Long id) {
         return cardService.getCardHistory(id);
+    }
+
+    // Obtener el reporte de usos de un card
+    @GetMapping("/{id}/usage-report/{month}/{year}")
+    public Mono<UsageReportDTO> getUsageReportByMonth(@PathVariable Long id, @PathVariable int month, @PathVariable int year) {
+        System.out.println("id: " + id + " month: " + month + " year: " + year);
+        return cardService.getUsageReportByMonth(id, month, year);
+    }
+
+    // Obtener el reporte de recargas de un card
+    @GetMapping("/{id}/recharge-report/{month}/{year}")
+    public Mono<RechargeReportDTO> getRechargeReportByMonth(@PathVariable Long id, @PathVariable int month, @PathVariable int year) {
+        return  cardService.getRechargeReportByMonth(id, month, year);
     }
 
 }

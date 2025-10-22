@@ -94,6 +94,7 @@ public class CardServiceImpl implements CardService{
         if (amount.compareTo(BigDecimal.ZERO) <= 0){
             return Mono.error(new MontoInvalidoException("El monto debe ser mayor a cero"));
         }
+
         return cardRepository.findById(id)
                 .flatMap(card -> {
                     card.setBalance(card.getBalance().add(amount));
@@ -178,20 +179,24 @@ public class CardServiceImpl implements CardService{
 
 
     @Override
-    public Mono<RechargeReportDTO> getRechargeReport(Long cardId, LocalDateTime startDate, LocalDateTime endDate) {
+    public Mono<RechargeReportDTO> getRechargeReportByMonth(Long cardId, int month, int year) {
+        // Calcular el rango de fechas del mes
+        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1);
+
         return rechargeRepository.findByCardIdAndDateRange(cardId, startDate, endDate)
                 .collectList()
                 .map(recharges -> {
-                    BigDecimal totalAmount = recharges.stream()
+                    BigDecimal totalSpent = recharges.stream()
                             .map(Recharge::getAmount)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                     return new RechargeReportDTO(
                             cardId,
-                            totalAmount,
+                            totalSpent,
                             (long) recharges.size(),
-                            startDate,
-                            endDate
+                            month,
+                            year
                     );
                 });
     }
@@ -208,7 +213,7 @@ public class CardServiceImpl implements CardService{
                     BigDecimal totalSpent = usages.stream()
                             .map(Usage::getTotalFare)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+                    System.out.println("Total spent: " + totalSpent);
                     return new UsageReportDTO(
                             cardId,
                             month,
@@ -218,4 +223,6 @@ public class CardServiceImpl implements CardService{
                     );
                 });
     }
+
+
 }

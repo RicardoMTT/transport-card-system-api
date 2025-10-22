@@ -18,7 +18,7 @@ public interface CardService {
     Mono<Card> recharge(Long id, java.math.BigDecimal amount);
     Mono<Card> use(Long id, int passengers);
     Flux<Recharge> getRecharges(Long id);
-    Mono<RechargeReportDTO> getRechargeReport(Long cardId, LocalDateTime startDate, LocalDateTime endDate);
+    Mono<RechargeReportDTO> getRechargeReportByMonth(Long cardId, int month, int year);
     Mono<UsageReportDTO> getUsageReportByMonth(Long cardId, int month, int year);
     Flux<CardHistoryDTO> getCardHistory(Long cardId); // Retorna un Flux de CardHistoryDTO que representa la historia de recargas y usos
 }
